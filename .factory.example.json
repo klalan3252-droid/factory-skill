@@ -1,0 +1,11 @@
+{
+  "slackChannel": "#dev-tasks",
+  "clickupListId": "901234567",
+  "clickupAssignee": "me",
+  "repo": "my-org/my-repo",
+  "baseBranch": "main",
+  "testCommand": "npm test",
+  "updateClickupStatus": true,
+  "clickupStatusOnPr": "in review",
+  "allowPrOnFailingTests": false
+}

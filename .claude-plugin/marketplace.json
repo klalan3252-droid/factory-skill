@@ -1,0 +1,11 @@
+{
+  "name": "factory-skill-marketplace",
+  "owner": { "name": "factory-skill maintainers" },
+  "plugins": [
+    {
+      "name": "factory-skill",
+      "source": "./",
+      "description": "ClickUp to Slack to GitHub autonomous software factory using the official hosted MCP servers."
+    }
+  ]
+}

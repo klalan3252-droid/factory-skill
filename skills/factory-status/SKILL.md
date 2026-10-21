@@ -1,0 +1,16 @@
+---
+name: factory-status
+description: Summarize factory state: ClickUp tasks synced to Slack, in-flight branches and open PRs. Use when asked for status, progress or a report.
+allowed-tools: mcp__clickup__*, mcp__slack__*, mcp__github__*, Read, Bash
+---
+
+# Factory status
+
+1. Read configuration (`FACTORY_*` env vars or `.factory.json`).
+2. ClickUp MCP: list assigned tasks in the configured list; note which carry a `factory-slack-thread:` marker (posted) and which do not (pending sync).
+3. GitHub MCP: list open PRs on the configured repo whose branch starts with `factory/`, with CI/review state.
+4. Produce a compact summary: pending sync, in progress, PR open (with links), blocked or failed.
+5. Run `node ${CLAUDE_PLUGIN_ROOT}/scripts/factory.js metrics` and include its numbers: tasks done/failed/paused, success rate, p50/p95 cycle time and per-step p50/p95 durations. List paused tasks with their reset time (`factory.js show <task-id>`).
+6. If invoked from a Slack thread or asked to post, send it to that thread (or the configured channel) via the Slack MCP; otherwise reply inline.
+
+Report any MCP or config error in the summary instead of omitting that section silently. This skill is read-only apart from the Slack post.
