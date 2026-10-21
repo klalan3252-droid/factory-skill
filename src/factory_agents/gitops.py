@@ -59,7 +59,11 @@ def has_changes(repo: Path) -> bool:
 
 
 def commit_all(repo: Path, message: str) -> None:
-    _git(repo, "add", "-A")
+    # Exclude artifacts produced by running the tests, even without a .gitignore.
+    _git(
+        repo, "add", "-A", "--", ".",
+        ":(exclude,glob)**/__pycache__/**", ":(exclude,glob)**/.pytest_cache/**",
+    )
     _git(repo, "commit", "-m", message)
 
 
