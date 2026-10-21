@@ -1,0 +1,11 @@
+{
+  "name": "factory-skill",
+  "owner": { "name": "klalan3252-droid" },
+  "plugins": [
+    {
+      "name": "factory-skill",
+      "source": "./",
+      "description": "Autonomous software factory using ClickUp, Slack and GitHub."
+    }
+  ]
+}
