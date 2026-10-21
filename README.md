@@ -59,6 +59,19 @@ In the mirrored task thread:
 
 If no repo is named in the task or message, Claude asks in the thread and stops without cloning, branching or editing.
 
+## Reliability: checkpoints, self-healing, pause/resume
+
+`scripts/factory.py` (Python stdlib, no dependencies) backs the skills with deterministic logic:
+
+- **Safe, resumable checkpoints** per task with atomic writes and a `.bak` fallback; re-tag Claude in the thread to resume at the first unfinished step.
+- **Self-healing test loop**: failing tests feed their output back into a fix, up to 3 attempts, then a failure report.
+- **Auto-pause/resume on usage limits**: reset times are parsed from the error output, the run pauses, waits and continues without losing progress or consuming a test attempt.
+- Repo resolution, branch/PR naming, failure reports and secret redaction.
+
+## Quantified results
+
+`python3 -I scripts/run_evals.py` runs the evals in `evals/cases.json` and writes [docs/eval-results.md](docs/eval-results.md) (currently 46/46: repo resolution, limit parsing, naming, self-healing, crash/resume at every step, pause/resume, redaction). The test suite fails if that file is stale. These evals measure the helper logic; end-to-end runs depend on your connectors.
+
 ## Conventions
 
 See [docs/conventions.md](docs/conventions.md): branches `CU-<task-id>-<slug>`, PR titles with the task ID, a PR body template (summary, ClickUp link, test results, notes), and the failure report format (step failed, error summary, what was tried, suggested next action). Tests must pass before a PR is opened; PRs are never auto-merged. The ClickUp update is optional and off by default.

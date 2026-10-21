@@ -10,6 +10,8 @@ Check each integration and report a table with status `ok` or `missing` and how 
 2. **Slack**: call a read-only Slack MCP tool (e.g. list channels). Missing if no Slack MCP tools exist or the call fails.
 3. **GitHub**: run `gh auth status`. Missing if `gh` is absent or not logged in with `repo` scope.
 
+4. **Helpers**: run `python3 -I ${CLAUDE_PLUGIN_ROOT}/scripts/factory.py --help` and confirm `python3` works; report any pending checkpoints in `~/.factory-skill/state/` (`status` paused or running) so they can be resumed.
+
 List every missing integration with the fix from the README. Do not proceed to a test post if anything is missing.
 
 If all are available and the user passes a channel (`$ARGUMENTS`), offer to post a test message to it; when the native ClickUp-Slack integration did not reflect a task update, use the `clickup-slack-mirror` skill to post it.

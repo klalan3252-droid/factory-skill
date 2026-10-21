@@ -39,6 +39,14 @@ What was tried: <commands/approaches>
 Suggested next action: <what a person should do>
 ```
 
+## Checkpoints and resume
+
+State is stored per task as JSON in `~/.factory-skill/state/` (override with `FACTORY_STATE_DIR`), outside the target repo so it is never committed. Writes are atomic (temp file, fsync, rename) and the previous version is kept as `.bak`; a corrupt file falls back to it. Steps: `read_task`, `resolve_repo`, `plan`, `implement`, `test`, `open_pr`, `post_link`, `update_clickup`. Re-tagging Claude in the same thread resumes at the first step not `done`.
+
+## Self-healing and usage limits
+
+The test step allows 3 attempts by default (`--max-attempts`). Each failed attempt feeds the output tail back into a fix. After the last attempt, post a failure report. A usage or rate limit pauses the run, records the reset time in the checkpoint, waits until it passes (plus a 30 second margin, 5 minutes if no reset time is given), then resumes. Limits do not consume attempts.
+
 ## Configuration
 
 Optional ClickUp update after the PR is opened. Off by default.

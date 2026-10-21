@@ -1,6 +1,6 @@
 {
   "name": "factory-skill",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Autonomous software factory: when tagged in a Slack thread about a ClickUp task, Claude plans, implements, tests, opens a GitHub PR and posts the link back in the thread.",
   "author": { "name": "klalan3252-droid" },
   "repository": "https://github.com/klalan3252-droid/factory-skill"

@@ -120,6 +120,18 @@ class MainSkillTests(unittest.TestCase):
             self.assertIn(k, text)
 
 
+class ReliabilityDocsTests(unittest.TestCase):
+    def test_skill_uses_helper_script(self):
+        low = read(MAIN_SKILL).lower()
+        for k in ("scripts/factory.py", "checkpoint", "heal", "usage limit", "wait"):
+            self.assertIn(k, low)
+        self.assertTrue((ROOT / "scripts" / "factory.py").is_file())
+
+    def test_readme_links_eval_results(self):
+        self.assertIn("docs/eval-results.md", read(ROOT / "README.md"))
+        self.assertTrue((ROOT / "docs" / "eval-results.md").is_file())
+
+
 class ReadmeTests(unittest.TestCase):
     def test_readme_sections(self):
         text = read(ROOT / "README.md").lower()
