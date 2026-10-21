@@ -2,7 +2,6 @@ from typing import TypedDict
 
 from langgraph.graph import END, StateGraph
 
-from app.llm import get_llm  # noqa: F401  (re-exported)
 from app.tickets import get_ticket
 
 
@@ -13,12 +12,13 @@ class State(TypedDict, total=False):
     plan: str
 
 
+def _describe(ticket: dict) -> str:
+    return f"Title: {ticket['title']}\n\n{ticket['description']}"
+
+
 def build_graph(llm):
     def load_ticket(state: State) -> dict:
         return {"ticket": get_ticket(state["ticket_id"]).model_dump()}
-
-    def _describe(ticket: dict) -> str:
-        return f"Title: {ticket['title']}\n\n{ticket['description']}"
 
     def triage(state: State) -> dict:
         prompt = (
