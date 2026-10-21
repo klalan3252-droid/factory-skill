@@ -1,0 +1,12 @@
+{
+  "name": "factory-skill",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Claude Code plugin: ClickUp-Slack-GitHub autonomous software factory",
+  "scripts": {
+    "test": "node --test tests/"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
