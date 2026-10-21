@@ -64,5 +64,8 @@ def main(argv: list[str] | None = None) -> int:
 
 def _poll(config, gh, llm) -> None:
     while True:
-        run_once(config, gh, llm)
+        try:
+            run_once(config, gh, llm)
+        except GitHubError as exc:
+            log.error("polling cycle failed: %s", exc)
         time.sleep(config.poll_interval)

@@ -42,6 +42,16 @@ def process_issue(issue: dict, config: Config, gh, llm,
         return
 
     _write(config, f"label #{number} {LABEL_IN_PROGRESS}", gh.add_label, number, LABEL_IN_PROGRESS)
+    try:
+        _run_steps(issue, config, gh, llm, workdir_factory, default_branch)
+    except Exception as exc:
+        _write(config, f"remove {LABEL_IN_PROGRESS} from #{number} and report failure",
+               _report_failure, gh, number, config, exc)
+        raise
+
+
+def _run_steps(issue, config, gh, llm, workdir_factory, default_branch) -> None:
+    number = issue["number"]
     plan = spec.make_spec(llm, issue)
 
     ctx = nullcontext(None) if workdir_factory else tempfile.TemporaryDirectory(prefix="factory-")
@@ -53,9 +63,7 @@ def process_issue(issue: dict, config: Config, gh, llm,
         gitops.checkout_new_branch(repo, branch)
         edits = implement.propose_edits(llm, issue, plan, gitops.list_files(repo))
         if not edits:
-            _write(config, f"comment on #{number} that no changes were proposed",
-                   gh.comment, number, "Factory: the model proposed no changes.")
-            return
+            raise RuntimeError("the model proposed no changes")
         gitops.apply_edits(repo, edits)
         gitops.commit_all(repo, f"{issue['title']} (#{number})", default_branch=default_branch)
 
@@ -77,6 +85,18 @@ def process_issue(issue: dict, config: Config, gh, llm,
     _write(config, f"label #{number} {LABEL_DONE}", gh.add_label, number, LABEL_DONE)
     if created:
         log.info("issue #%s: opened %s", number, created.get("html_url"))
+
+
+
+def _report_failure(gh, number: int, config: Config, exc: Exception) -> None:
+    """Make a failed run visible and retryable; cleanup errors must not mask the cause."""
+    try:
+        gh.remove_label(number, LABEL_IN_PROGRESS)
+        gh.comment(number, f"Factory: processing failed ({type(exc).__name__}: "
+                   f"{redact(str(exc), config.github_token)}). Re-label to retry.")
+    except Exception as cleanup_exc:
+        log.error("issue #%s: could not report failure: %s", number,
+                  redact(str(cleanup_exc), config.github_token))
 
 
 def _comment_and_label(gh, number: int, body: str, label: str) -> None:

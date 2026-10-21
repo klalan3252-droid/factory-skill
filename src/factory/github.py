@@ -1,6 +1,8 @@
 """Minimal GitHub REST client over httpx."""
 from __future__ import annotations
 
+from urllib.parse import quote
+
 import httpx
 
 from .config import redact
@@ -76,6 +78,13 @@ class GitHubClient:
 
     def add_label(self, number: int, label: str) -> None:
         self._request("POST", self._repo_path(f"/issues/{number}/labels"), json={"labels": [label]})
+
+    def remove_label(self, number: int, label: str) -> None:
+        try:
+            self._request("DELETE", self._repo_path(f"/issues/{number}/labels/{quote(label, safe='')}"))
+        except GitHubError as exc:
+            if "failed with 404" not in str(exc):
+                raise
 
     def create_pr(self, title: str, body: str, head: str, base: str, draft: bool = False) -> dict:
         return self._request("POST", self._repo_path("/pulls"), json={

@@ -108,4 +108,4 @@ def push(repo: Path, branch: str, default_branch: str, dry_run: bool = False,
         log.info("[dry-run] would push branch %s", branch)
         return
     ref = f"refs/heads/{branch}"
-    _git(["push", "origin", f"{ref}:{ref}"], cwd=repo, token=token)
+    _git(["push", "--force", "origin", f"+{ref}:{ref}"], cwd=repo, token=token)
