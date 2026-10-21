@@ -1,0 +1,5 @@
+{
+  "id": "example-json",
+  "title": "Fix login failure on Safari",
+  "description": "Users on Safari 17 cannot log in; the form submits but the session cookie is not set."
+}
