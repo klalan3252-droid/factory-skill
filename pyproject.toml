@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "factory-agents"
+version = "0.1.0"
+description = "Simple autonomous software factory: LLM agents plan, implement, verify and commit a change."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["langchain>=0.3", "langchain-core>=0.3"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+anthropic = ["langchain-anthropic"]
+openai = ["langchain-openai"]
+
+[project.scripts]
+factory = "factory_agents.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/factory_agents"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
