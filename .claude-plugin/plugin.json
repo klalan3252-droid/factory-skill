@@ -1,0 +1,7 @@
+{
+  "name": "factory-skill",
+  "version": "0.1.0",
+  "description": "Autonomous software factory: mirror ClickUp tasks into Slack, then plan, implement, test and open a GitHub PR when Claude is tagged in the thread.",
+  "author": { "name": "factory-skill maintainers" },
+  "keywords": ["clickup", "slack", "github", "mcp", "automation"]
+}

@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "clickup": { "type": "http", "url": "https://mcp.clickup.com/mcp" },
+    "slack": { "type": "http", "url": "https://mcp.slack.com/mcp" },
+    "github": { "type": "http", "url": "https://api.githubcopilot.com/mcp/" }
+  }
+}
