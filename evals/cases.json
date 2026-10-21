@@ -1,0 +1,41 @@
+{
+  "repo_resolution": [
+    {"slack": "@Claude implement this in klalan3252-droid/my-service", "task": "", "expect": "klalan3252-droid/my-service"},
+    {"slack": "@Claude take this, the repo is https://github.com/acme/web-app", "task": "", "expect": "acme/web-app"},
+    {"slack": "@Claude please do it", "task": "Repo: acme/billing\nAdd invoice export", "expect": "acme/billing"},
+    {"slack": "@Claude go", "task": "See https://github.com/acme/api.git for code", "expect": "acme/api"},
+    {"slack": "use repo `acme/ui-kit` for this", "task": "Repo: acme/other", "expect": "acme/ui-kit"},
+    {"slack": "@Claude go", "task": "code at git@github.com:acme/infra.git", "expect": "acme/infra"},
+    {"slack": "@Claude go, repository: Acme/Docs", "task": "https://github.com/acme/docs", "expect": "Acme/Docs"},
+    {"slack": "@Claude go", "task": "PR in https://github.com/acme/api/pull/12 needs a follow-up", "expect": "acme/api"},
+    {"slack": "@Claude implement this task", "task": "Add dark mode toggle to settings page", "expect": null},
+    {"slack": "@Claude fix the bug, see https://github.com/orgs/acme/people", "task": "", "expect": null},
+    {"slack": "@Claude do both: in acme/a and https://github.com/acme/b", "task": "", "expect": null},
+    {"slack": "@Claude go", "task": "touches https://github.com/acme/x and https://github.com/acme/y", "expect": null},
+    {"slack": "@Claude fix the typo in docs/readme.md", "task": "", "expect": null},
+    {"slack": "@Claude fix the bug in src/utils/main.py", "task": "", "expect": null},
+    {"slack": "", "task": "", "expect": null}
+  ],
+  "usage_limit_parsing": [
+    {"text": "Error 429: usage limit reached. Retry-After: 120", "now": 1000, "expect": 1150},
+    {"text": "rate limit hit, try again in 2 hours 5 minutes", "now": 1000, "expect": 8530},
+    {"text": "Please retry in 45s: too many requests", "now": 1000, "expect": 1075},
+    {"text": "Claude AI usage limit reached|1760000000", "now": 1000, "expect": 1760000030},
+    {"text": "usage limit reached. resets at 3pm (UTC)", "now": 0, "expect": 54030},
+    {"text": "usage limit reached. resets 12:30am UTC", "now": 0, "expect": 1830},
+    {"text": "limit reached, no details", "now": 1000, "expect": 1300},
+    {"text": "AssertionError: expected 3 got 4", "now": 1000, "expect": null},
+    {"text": "", "now": 1000, "expect": null}
+  ],
+  "branch_naming": [
+    {"task_id": "14yqt44akxp", "title": "Add Login Rate Limit!", "expect": "CU-14yqt44akxp-add-login-rate-limit"},
+    {"task_id": "CU-abc1", "title": "Fix: crash on empty cart when user logs out twice", "expect": "CU-abc1-fix-crash-on-empty-cart"},
+    {"task_id": "x9", "title": "!!!", "expect": "CU-x9-task"}
+  ],
+  "self_healing": [
+    {"name": "passes first try", "fail_times": 0, "max_attempts": 3, "expect": ["pass"]},
+    {"name": "heals on 2nd attempt", "fail_times": 1, "max_attempts": 3, "expect": ["fix", "pass"]},
+    {"name": "heals on last attempt", "fail_times": 2, "max_attempts": 3, "expect": ["fix", "fix", "pass"]},
+    {"name": "never heals", "fail_times": 99, "max_attempts": 3, "expect": ["fix", "fix", "exhausted"]}
+  ]
+}
