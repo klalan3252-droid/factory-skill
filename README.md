@@ -87,6 +87,20 @@ Exact scope names depend on the vendor; check their docs.
 
 On any failure (missing config, failing tests, MCP error) Claude reports the reason in the Slack thread. It does not open a PR when tests fail unless `allowPrOnFailingTests` is set, and it never merges.
 
+## Checkpoints, pause/resume and metrics
+
+`scripts/factory.js` (Node >=18, no dependencies) persists per-task progress in `.factory/state/` (git-ignored; override with `FACTORY_STATE_DIR`). Writes are atomic.
+
+```
+node scripts/factory.js begin T1 plan            # start a step (timestamps it)
+node scripts/factory.js complete T1 plan '{"branch":"factory/T1-x"}'
+node scripts/factory.js pause T1 2026-10-21T18:00:00Z "usage limit"
+node scripts/factory.js next T1                  # wait | resume (+step) | none
+node scripts/factory.js metrics                  # success rate, p50/p95 per step and cycle time
+```
+
+When a usage limit is hit, the workflow pauses with the reset time, tells the Slack thread, and stops. Re-running `/factory-skill:work <task-id>` (for example via `/loop` or `/schedule`) resumes at the interrupted step without repeating completed ones or opening a duplicate PR. `/factory-skill:status` reports the metrics.
+
 ## Out of scope
 
 Webhook relays, custom Slack bots, real-time ClickUp triggers, auto-merge/deploy/release, and ClickUp field sync beyond the optional status/comment and the dedupe marker.
@@ -97,4 +111,4 @@ Webhook relays, custom Slack bots, real-time ClickUp triggers, auto-merge/deploy
 npm test
 ```
 
-The tests validate JSON manifests, `.mcp.json` (no secrets) and markdown frontmatter, using only Node built-ins.
+The tests also cover the checkpoint, pause/resume and metrics logic in `scripts/factory.js`. They validate JSON manifests, `.mcp.json` (no secrets) and markdown frontmatter, using only Node built-ins.

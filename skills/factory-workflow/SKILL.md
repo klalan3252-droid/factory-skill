@@ -22,6 +22,16 @@ Read env vars first, then `.factory.json`: `FACTORY_REPO` / `repo`, `FACTORY_BAS
 6. **Post the link.** Reply with the PR link in the same Slack thread.
 7. **Update ClickUp (optional).** If `updateClickupStatus` is enabled, set the task status (`clickupStatusOnPr`) and/or add a comment with the PR link.
 
+## Checkpoints, pause and resume
+
+State is kept by `node ${CLAUDE_PLUGIN_ROOT}/scripts/factory.js` in `.factory/state/<task-id>.json` (atomic writes, so a crash never corrupts it).
+
+- Before starting: `factory.js next <task-id>`. If it returns `resume`, continue from that step and do not repeat completed ones (reuse saved data such as branch name, thread ts, PR URL). If it returns `wait`, post the reset time in the thread and stop; a scheduled `/factory-skill:work` run picks it up later.
+- Around each step (`context`, `plan`, `implement`, `test`, `pr`, `post`, `update`): `factory.js begin <task-id> <step>`, then `factory.js complete <task-id> <step> '<json data>'`. Commit work-in-progress on the branch so implementation survives a pause.
+- On a usage or rate limit: `factory.js pause <task-id> <reset ISO time> "usage limit"`, post a short note with the reset time in the thread, and stop. After the reset, resume from the saved step.
+- On any other failure: `factory.js fail <task-id> <step> "<reason>"`.
+- Before opening a PR, check the checkpoint's `pr` data so a resumed run never opens a duplicate.
+
 ## Failure handling
 
 Never fail silently. On any failure (missing config, unauthenticated or erroring MCP server, branch/push problems, failing tests) report the failure and its reason in the Slack thread, say what was completed, and stop.
