@@ -4,7 +4,7 @@
   "private": true,
   "description": "Claude Code plugin: ClickUp-Slack-GitHub autonomous software factory",
   "scripts": {
-    "test": "node --test tests/"
+    "test": "node --test \"tests/**/*.test.js\""
   },
   "engines": {
     "node": ">=18"
