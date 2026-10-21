@@ -18,11 +18,15 @@ class GitError(Exception):
     """Raised when a git command fails or an unsafe operation is requested."""
 
 
+def _basic_credential(token: str) -> str:
+    return base64.b64encode(f"x-access-token:{token}".encode()).decode()
+
+
 def _auth_env(token: str | None) -> dict[str, str]:
     env = dict(os.environ)
     env["GIT_TERMINAL_PROMPT"] = "0"
     if token:
-        cred = base64.b64encode(f"x-access-token:{token}".encode()).decode()
+        cred = _basic_credential(token)
         env["GIT_CONFIG_COUNT"] = "1"
         env["GIT_CONFIG_KEY_0"] = "http.extraheader"
         env["GIT_CONFIG_VALUE_0"] = f"AUTHORIZATION: basic {cred}"
@@ -37,7 +41,7 @@ def _git(args: list[str], cwd: Path | None = None, token: str | None = None) -> 
     if proc.returncode != 0:
         secrets = [token]
         if token:
-            secrets.append(base64.b64encode(f"x-access-token:{token}".encode()).decode())
+            secrets.append(_basic_credential(token))
         err = redact((proc.stderr or proc.stdout).strip(), *secrets)
         raise GitError(f"git {args[0]} failed: {err}")
     return proc.stdout.strip()
