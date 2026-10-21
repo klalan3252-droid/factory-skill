@@ -87,7 +87,6 @@ def _run_steps(issue, config, gh, llm, workdir_factory, default_branch) -> None:
         log.info("issue #%s: opened %s", number, created.get("html_url"))
 
 
-
 def _report_failure(gh, number: int, config: Config, exc: Exception) -> None:
     """Make a failed run visible and retryable; cleanup errors must not mask the cause."""
     try:
