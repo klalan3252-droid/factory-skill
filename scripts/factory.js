@@ -30,6 +30,12 @@ function load(task) {
   }
 }
 
+// Mark a step ended with the given outcome, keeping its start time.
+function endStep(s, step, now, outcome) {
+  const prev = s.steps[step] || { startedAt: now };
+  s.steps[step] = { ...prev, ...outcome, endedAt: now, durationMs: now - prev.startedAt };
+}
+
 // Start a step: records start time, marks task running, clears any pause.
 function begin(task, step, now = Date.now()) {
   if (!STEPS.includes(step)) throw new Error(`unknown step: ${step}`);
@@ -46,8 +52,7 @@ function begin(task, step, now = Date.now()) {
 function complete(task, step, data = {}, now = Date.now()) {
   const s = load(task);
   if (!s) throw new Error(`no checkpoint for ${task}`);
-  const prev = s.steps[step] || { startedAt: now };
-  s.steps[step] = { ...prev, status: 'done', endedAt: now, durationMs: now - prev.startedAt, data };
+  endStep(s, step, now, { status: 'done', data });
   s.current = STEPS[STEPS.indexOf(step) + 1] || null;
   if (!s.current) s.status = 'done';
   writeAtomic(fileFor(task), s);
@@ -56,8 +61,7 @@ function complete(task, step, data = {}, now = Date.now()) {
 
 function fail(task, step, reason, now = Date.now()) {
   const s = load(task) || { task, createdAt: now, steps: {} };
-  const prev = s.steps[step] || { startedAt: now };
-  s.steps[step] = { ...prev, status: 'failed', endedAt: now, durationMs: now - prev.startedAt, reason };
+  endStep(s, step, now, { status: 'failed', reason });
   s.status = 'failed';
   writeAtomic(fileFor(task), s);
   return s;
@@ -102,7 +106,6 @@ function metrics(states = list()) {
   const done = count('done');
   const failed = count('failed');
   const perStep = {};
-  let pausedMs = 0;
   for (const s of states) {
     for (const [name, st] of Object.entries(s.steps)) {
       if (st.status === 'done') (perStep[name] = perStep[name] || []).push(st.durationMs);
@@ -117,7 +120,9 @@ function metrics(states = list()) {
     .filter((s) => s.status === 'done')
     .map((s) => Object.values(s.steps).reduce((a, x) => a + (x.durationMs || 0), 0))
     .sort((a, b) => a - b);
-  for (const s of states) if (s.pause && s.status === 'paused') pausedMs += Math.max(0, s.pause.resetAt - s.pause.pausedAt);
+  const pausedMs = states
+    .filter((s) => s.pause && s.status === 'paused')
+    .reduce((a, s) => a + Math.max(0, s.pause.resetAt - s.pause.pausedAt), 0);
   return {
     tasks: states.length,
     done,
